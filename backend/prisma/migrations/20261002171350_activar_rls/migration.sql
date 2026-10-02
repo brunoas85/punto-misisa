@@ -1,0 +1,12 @@
+-- Supabase expone el schema public vía su API REST (anon key). El backend se conecta
+-- como postgres y no pasa por RLS: activarla sin políticas cierra ese acceso directo.
+ALTER TABLE "Categoria" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Producto" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "FotoProducto" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Pedido" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ItemPedido" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Encargo" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Arreglo" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "FotoSolicitud" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "TrabajoGaleria" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Admin" ENABLE ROW LEVEL SECURITY;

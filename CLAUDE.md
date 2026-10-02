@@ -95,6 +95,12 @@ npm run lint && npm run build
 
 En Supabase hay que crear a mano los buckets de Storage: `productos` (público) y `solicitudes` (privado). Sin `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`, todo funciona salvo la subida de fotos (responde 503).
 
+### Supabase
+
+- Proyecto **Punto MISISA**, ref `tndpyjkacvnwfgbvgsbf`, región `sa-east-1`, org bRuno`s (plan free). Buckets `productos` y `solicitudes` ya creados (8 MB, solo JPG/PNG/WebP).
+- `SUPABASE_SERVICE_ROLE_KEY` tiene que ser la clave **legacy `service_role` (JWT)**: la nueva `sb_secret_…` la rechaza Storage con "Invalid Compact JWS".
+- **RLS activado en todas las tablas, sin políticas** (migración `activar_rls`): Supabase expone `public` por su API REST y la anon key no es secreta. El backend entra como `postgres` y no pasa por RLS. Toda tabla nueva necesita su `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` en la migración que la crea. `_prisma_migrations` se activó a mano (no puede ir en una migración porque no existe en la shadow DB).
+
 ### Mapa del código
 
 - `backend/src/app.ts`: monta los routers. `routes/publico/*` (catálogo, galería, pedidos, encargos, arreglos) y `routes/admin/*` (login, ABM de catálogo/galería, bandejas).
