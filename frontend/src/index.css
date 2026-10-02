@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  /* Lana natural y tierra */
+  --color-crudo: #f7f1e8;
+  --color-lana: #efe4d2;
+  --color-arena: #dccbb0;
+  --color-terracota: #c0603f;
+  --color-terracota-oscuro: #9c4a2f;
+  --color-mostaza: #d9a441;
+  --color-oliva: #6b7041;
+  --color-tinta: #3b2f28;
+  --color-tinta-suave: #6e5f55;
+
+  --font-titulo: "Fraunces", Georgia, serif;
+  --font-sans: "Nunito Sans", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-crudo text-tinta font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-titulo text-tinta;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-terracota;
+  }
+}
+
+@utility boton {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-terracota px-6 font-semibold text-crudo transition hover:bg-terracota-oscuro disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility boton-secundario {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-tinta/20 px-6 font-semibold text-tinta transition hover:bg-lana disabled:opacity-50;
+}
+
+@utility campo {
+  @apply min-h-11 w-full rounded-xl border border-arena bg-white px-4 py-2 text-tinta placeholder:text-tinta-suave/60;
+}

@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Disponibilidad {
+  disponible
+  por_encargo
+}
+
+enum EstadoPedido {
+  pendiente
+  confirmado
+  entregado
+  cancelado
+}
+
+/// Estados compartidos por encargos y arreglos
+enum EstadoSolicitud {
+  nuevo
+  presupuestado
+  en_proceso
+  listo
+  entregado
+  cancelado
+}
+
+model Categoria {
+  id        String     @id @default(cuid())
+  nombre    String
+  slug      String     @unique
+  orden     Int        @default(0)
+  visible   Boolean    @default(true)
+  productos Producto[]
+}
+
+model Producto {
+  id             String         @id @default(cuid())
+  nombre         String
+  slug           String         @unique
+  descripcion    String         @default("")
+  categoriaId    String
+  categoria      Categoria      @relation(fields: [categoriaId], references: [id])
+  /// Pesos, sin decimales. null = "a consultar"
+  precio         Int?
+  stock          Int            @default(0)
+  disponibilidad Disponibilidad @default(disponible)
+  /// Demora estimada cuando es por encargo
+  diasConfeccion Int?
+  fibra          String?
+  talles         String[]
+  colores        String[]
+  cuidados       String?
+  visible        Boolean        @default(true)
+  destacado      Boolean        @default(false)
+  fotos          FotoProducto[]
+  itemsPedido    ItemPedido[]
+  encargos       Encargo[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([categoriaId])
+}
+
+model FotoProducto {
+  id         String   @id @default(cuid())
+  productoId String
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  /// Ruta dentro del bucket público `productos`
+  ruta       String
+  alt        String   @default("")
+  orden      Int      @default(0)
+}
+
+model Pedido {
+  id         String       @id @default(cuid())
+  numero     Int          @unique @default(autoincrement())
+  nombre     String
+  telefono   String
+  zona       String
+  comentario String?
+  estado     EstadoPedido @default(pendiente)
+  total      Int
+  notas      String?
+  items      ItemPedido[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([estado])
+}
+
+model ItemPedido {
+  id             String   @id @default(cuid())
+  pedidoId       String
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId     String
+  producto       Producto @relation(fields: [productoId], references: [id])
+  /// Copia del nombre y precio al momento del pedido
+  nombreProducto String
+  precioUnitario Int
+  cantidad       Int
+}
+
+model Encargo {
+  id             String          @id @default(cuid())
+  numero         Int             @unique @default(autoincrement())
+  nombre         String
+  telefono       String
+  zona           String?
+  tipoPrenda     String
+  productoBaseId String?
+  productoBase   Producto?       @relation(fields: [productoBaseId], references: [id], onDelete: SetNull)
+  talle          String?
+  medidas        String?
+  colores        String?
+  fibra          String?
+  fechaDeseada   DateTime?
+  comentario     String?
+  estado         EstadoSolicitud @default(nuevo)
+  presupuesto    Int?
+  fechaEstimada  DateTime?
+  notas          String?
+  fotos          FotoSolicitud[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([estado])
+}
+
+model Arreglo {
+  id            String          @id @default(cuid())
+  numero        Int             @unique @default(autoincrement())
+  nombre        String
+  telefono      String
+  zona          String?
+  tipoPrenda    String
+  descripcion   String
+  estado        EstadoSolicitud @default(nuevo)
+  presupuesto   Int?
+  fechaEstimada DateTime?
+  notas         String?
+  fotos         FotoSolicitud[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([estado])
+}
+
+model FotoSolicitud {
+  id        String   @id @default(cuid())
+  /// Ruta dentro del bucket privado `solicitudes`
+  ruta      String
+  encargoId String?
+  encargo   Encargo? @relation(fields: [encargoId], references: [id], onDelete: Cascade)
+  arregloId String?
+  arreglo   Arreglo? @relation(fields: [arregloId], references: [id], onDelete: Cascade)
+}
+
+model TrabajoGaleria {
+  id          String   @id @default(cuid())
+  titulo      String
+  descripcion String?
+  /// Ruta dentro del bucket público `productos`
+  ruta        String
+  orden       Int      @default(0)
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Admin {
+  id           String @id @default(cuid())
+  usuario      String @unique
+  passwordHash String
+}
